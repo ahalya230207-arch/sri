@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+AI Flood Risk Detection & Early Warning System
+</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #eef5f9;
+    color: #172b4d;
+}
+
+header {
+    background: linear-gradient(135deg, #075985, #0e7490);
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+header p {
+    opacity: 0.9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 25px auto;
+    padding: 0 20px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.status {
+    font-weight: bold;
+}
+
+.live {
+    color: #16a34a;
+}
+
+select {
+    padding: 10px;
+    border-radius: 7px;
+    border: 1px solid #ccc;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+    color: #64748b;
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+.value {
+    font-size: 30px;
+    font-weight: bold;
+    color: #075985;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.risk-card {
+    text-align: center;
+}
+
+.risk-score {
+    font-size: 65px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.risk-level {
+    display: inline-block;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.low {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.moderate {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.high {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.critical {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.warning {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.warning.normal {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.warning.alert {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.data-row:last-child {
+    border-bottom: none;
+}
+
+.history {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.forecast {
+    margin-top: 20px;
+}
+
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.forecast-box {
+    background: #f1f5f9;
+    padding: 15px 8px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.forecast-box strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.forecast-box span {
+    display: block;
+    margin: 5px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th,
+td {
+    padding: 13px;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #f1f5f9;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    margin-top: 30px;
+    color: #64748b;
+}
+
+.backend-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.backend-online {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.backend-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.weather-status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    background: #e0f2fe;
+    color: #075985;
+}
+
+.offline {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.note {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-size: 14px;
+}
+
+@media(max-width: 800px) {
+
+    .metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .forecast-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+}
+
+@media(max-width: 500px) {
+
+    .metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .forecast-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>
+🌊 AI Flood Risk Detection & Early Warning System
+</h1>
+
+<p>
+Real-Time Environmental Monitoring & Intelligent Flood Prediction
+</p>
+
+</header>
+
+
+<div class="container">
+
+
+<div class="top-bar">
+
+<div>
+
+<strong>📍 Monitoring Location:</strong>
+
+<select id="location"
+onchange="changeLocation()">
+
+<option value="chennai">Chennai</option>
+<option value="trichy">Trichy</option>
+<option value="thanjavur">Thanjavur</option>
+<option value="coimbatore">Coimbatore</option>
+
+</select>
+
+</div>
+
+
+<div class="status">
+
+● <span class="live">
+LIVE MONITORING
+</span>
+
+</div>
+
+</div>
+
+
+<div class="metrics">
+
+
+<div class="card">
+
+<h3>🌧️ Rainfall</h3>
+
+<div class="value"
+id="rainfall">
+
+-- mm
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>💧 Water Level</h3>
+
+<div class="value"
+id="waterLevel">
+
+-- m
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>🌊 River Level</h3>
+
+<div class="value"
+id="riverLevel">
+
+-- m
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>🌡️ Temperature</h3>
+
+<div class="value"
+id="temperature">
+
+-- °C
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="main-grid">
+
+
+<div class="card risk-card">
+
+<h2>
+🤖 AI Flood Risk Prediction
+</h2>
+
+
+<div class="risk-score"
+id="riskScore">
+
+--
+
+</div>
+
+
+<div id="riskLevel"
+class="risk-level moderate">
+
+WAITING
+
+</div>
+
+
+<div id="warning"
+class="warning normal">
+
+Waiting for weather data...
+
+</div>
+
+
+<div id="backendStatus"
+class="backend-status">
+
+Connecting to AI backend...
+
+</div>
+
+
+<div id="weatherStatus"
+class="weather-status">
+
+🌦️ Getting real weather data...
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+<h2>
+📊 Environmental Data
+</h2>
+
+
+<div class="data-row">
+
+<span>Humidity</span>
+
+<strong id="humidity">
+-- %
+</strong>
+
+</div>
+
+
+<div class="data-row">
+
+<span>Wind Speed</span>
+
+<strong id="wind">
+-- km/h
+</strong>
+
+</div>
+
+
+<div class="data-row">
+
+<span>Soil Moisture</span>
+
+<strong id="soil">
+-- %
+</strong>
+
+</div>
+
+
+<div class="data-row">
+
+<span>Weather Status</span>
+
+<strong id="sensorStatus"
+class="live">
+
+Loading
+
+</strong>
+
+</div>
+
+
+<div class="data-row">
+
+<span>Last Updated</span>
+
+<strong id="updated">
+--
+</strong>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<div class="card forecast">
+
+<h2>
+📅 Next 6 Hours Forecast
+</h2>
+
+<div id="forecastGrid"
+class="forecast-grid">
+
+<div class="forecast-box">
+Loading...
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>
+ℹ️ Data Information
+</h2>
+
+<div class="note">
+
+🌦️ Weather values are obtained from a real weather forecast service.
+
+<br><br>
+
+🌊 Water Level and River Level require actual sensors or a suitable hydrological data source. They are currently estimated values for the AI prototype.
+
+</div>
+
+</div>
+
+
+<div class="card history">
+
+<h2>
+📋 Recent Monitoring History
+</h2>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Time</th>
+
+<th>Rainfall</th>
+
+<th>Water Level</th>
+
+<th>Risk Score</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="historyTable">
+
+<tr>
+
+<td>--</td>
+
+<td>--</td>
+
+<td>--</td>
+
+<td>--</td>
+
+<td>Waiting...</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+<footer>
+
+AI-Based Real-Time Flood Risk Detection & Early Warning System
+
+<br>
+
+Intelligent Disaster Management Prototype
+
+</footer>
+
+
+
+<script>
+
+
+/* ==========================================
+   RENDER BACKEND
+   ========================================== */
+
+const API_URL =
+"https://ai-flood-risk-backend-1zrs.onrender.com/predict";
+
+
+/* ==========================================
+   LOCATION COORDINATES
+   ========================================== */
+
+const locations = {
+
+    chennai: {
+        name: "Chennai",
+        latitude: 13.0827,
+        longitude: 80.2707
+    },
+
+    trichy: {
+        name: "Trichy",
+        latitude: 10.7905,
+        longitude: 78.7047
+    },
+
+    thanjavur: {
+        name: "Thanjavur",
+        latitude: 10.7867,
+        longitude: 79.1378
+    },
+
+    coimbatore: {
+        name: "Coimbatore",
+        latitude: 11.0168,
+        longitude: 76.9558
+    }
+
+};
+
+
+/* ==========================================
+   GET CURRENT LOCATION
+   ========================================== */
+
+function getSelectedLocation() {
+
+    const selected =
+        document.getElementById(
+            "location"
+        ).value;
+
+    return locations[selected];
+
+}
+
+
+/* ==========================================
+   GET REAL WEATHER
+   ========================================== */
+
+async function getRealWeather() {
+
+    const location =
+        getSelectedLocation();
+
+    const weatherStatus =
+        document.getElementById(
+            "weatherStatus"
+        );
+
+    weatherStatus.innerText =
+        "🌦️ Getting real weather data for "
+        + location.name
+        + "...";
+
+    weatherStatus.className =
+        "weather-status";
+
+
+    const url =
+        "https://api.open-meteo.com/v1/forecast"
+        + "?latitude=" + location.latitude
+        + "&longitude=" + location.longitude
+        + "&current="
+        + "temperature_2m,"
+        + "relative_humidity_2m,"
+        + "precipitation,"
+        + "wind_speed_10m,"
+        + "soil_moisture_0_to_1cm"
+        + "&hourly="
+        + "temperature_2m,"
+        + "relative_humidity_2m,"
+        + "precipitation,"
+        + "wind_speed_10m"
+        + "&forecast_days=2"
+        + "&timezone=auto";
+
+
+    try {
+
+        const response =
+            await fetch(url);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Weather API failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const current =
+            data.current;
+
+
+        /* ==================================
+           UPDATE CURRENT WEATHER
+           ================================== */
+
+        const rainfall =
+            Number(
+                current.precipitation || 0
+            );
+
+
+        const temperature =
+            Number(
+                current.temperature_2m
+            );
+
+
+        const humidity =
+            Number(
+                current.relative_humidity_2m
+            );
+
+
+        const wind =
+            Number(
+                current.wind_speed_10m
+            );
+
+
+        const soilRaw =
+            Number(
+                current.soil_moisture_0_to_1cm || 0
+            );
+
+
+        const soil =
+            Math.round(
+                soilRaw * 100
+            );
+
+
+        document.getElementById(
+            "rainfall"
+        ).innerText =
+            rainfall.toFixed(1)
+            + " mm";
+
+
+        document.getElementById(
+            "temperature"
+        ).innerText =
+            temperature.toFixed(1)
+            + "°C";
+
+
+        document.getElementById(
+            "humidity"
+        ).innerText =
+            humidity
+            + "%";
+
+
+        document.getElementById(
+            "wind"
+        ).innerText =
+            wind.toFixed(1)
+            + " km/h";
+
+
+        document.getElementById(
+            "soil"
+        ).innerText =
+            soil
+            + "%";
+
+
+        document.getElementById(
+            "updated"
+        ).innerText =
+            new Date()
+            .toLocaleTimeString();
+
+
+        document.getElementById(
+            "sensorStatus"
+        ).innerText =
+            "Real Weather";
+
+
+        /* ==================================
+           WATER / RIVER PROTOTYPE VALUES
+           ================================== */
+
+        const water =
+            2.5;
+
+
+        const river =
+            3.0;
+
+
+        document.getElementById(
+            "waterLevel"
+        ).innerText =
+            water.toFixed(1)
+            + " m";
+
+
+        document.getElementById(
+            "riverLevel"
+        ).innerText =
+            river.toFixed(1)
+            + " m";
+
+
+        /* ==================================
+           FORECAST
+           ================================== */
+
+        displayForecast(
+            data.hourly
+        );
+
+
+        weatherStatus.innerText =
+            "🟢 Real Weather Data Online - "
+            + location.name;
+
+
+        weatherStatus.className =
+            "weather-status";
+
+
+        /* ==================================
+           SEND TO AI
+           ================================== */
+
+        updateRisk(
+            rainfall,
+            water,
+            river,
+            soil,
+            humidity
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Weather API Error:",
+            error
+        );
+
+
+        weatherStatus.innerText =
+            "🔴 Weather unavailable - Offline Mode";
+
+
+        weatherStatus.className =
+            "weather-status offline";
+
+
+        document.getElementById(
+            "sensorStatus"
+        ).innerText =
+            "Offline";
+
+
+        offlinePrediction();
+
+    }
+
+}
+
+
+
+/* ==========================================
+   AI RISK PREDICTION
+   ========================================== */
+
+async function updateRisk(
+    rainfall,
+    water,
+    river,
+    soil,
+    humidity
+) {
+
+
+    const backendStatus =
+        document.getElementById(
+            "backendStatus"
+        );
+
+
+    backendStatus.innerText =
+        "🤖 AI is analysing real weather data...";
+
+
+    backendStatus.className =
+        "backend-status";
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        rainfall:
+                            rainfall,
+
+                        water_level:
+                            water,
+
+                        river_level:
+                            river,
+
+                        soil_moisture:
+                            soil,
+
+                        humidity:
+                            humidity
+
+                    })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Backend error"
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        showRisk(
+            result.risk_score,
+            result.risk_level,
+            result.warning
+        );
+
+
+        backendStatus.innerText =
+            "🟢 AI Backend Online";
+
+
+        backendStatus.className =
+            "backend-status backend-online";
+
+
+        addHistory(
+            rainfall,
+            water,
+            result.risk_score,
+            result.risk_level
+        );
+
+
+    }
+
+    catch (error) {
+
+
+        console.error(
+            "Backend Error:",
+            error
+        );
+
+
+        backendStatus.innerText =
+            "🔴 Backend Offline - Local Emergency Mode";
+
+
+        backendStatus.className =
+            "backend-status backend-error";
+
+
+        localRiskCalculation(
+            rainfall,
+            water,
+            river,
+            soil,
+            humidity
+        );
+
+    }
+
+}
+
+
+
+/* ==========================================
+   SHOW AI RESULT
+   ========================================== */
+
+function showRisk(
+    score,
+    riskLevel,
+    warningText
+) {
+
+
+    document.getElementById(
+        "riskScore"
+    ).innerText =
+        score;
+
+
+    const level =
+        document.getElementById(
+            "riskLevel"
+        );
+
+
+    const warning =
+        document.getElementById(
+            "warning"
+        );
+
+
+    level.className =
+        "risk-level";
+
+
+    if (
+        riskLevel === "LOW"
+    ) {
+
+        level.innerText =
+            "LOW RISK";
+
+        level.classList.add(
+            "low"
+        );
+
+        warning.className =
+            "warning normal";
+
+        warning.innerText =
+            "✅ " + warningText;
+
+    }
+
+
+    else if (
+        riskLevel === "MODERATE"
+    ) {
+
+        level.innerText =
+            "MODERATE RISK";
+
+        level.classList.add(
+            "moderate"
+        );
+
+        warning.className =
+            "warning normal";
+
+        warning.innerText =
+            "⚠️ " + warningText;
+
+    }
+
+
+    else if (
+        riskLevel === "HIGH"
+    ) {
+
+        level.innerText =
+            "HIGH RISK";
+
+        level.classList.add(
+            "high"
+        );
+
+        warning.className =
+            "warning alert";
+
+        warning.innerText =
+            "🚨 " + warningText;
+
+    }
+
+
+    else {
+
+        level.innerText =
+            "CRITICAL RISK";
+
+        level.classList.add(
+            "critical"
+        );
+
+        warning.className =
+            "warning alert";
+
+        warning.innerText =
+            "🚨 " + warningText;
+
+    }
+
+}
+
+
+
+/* ==========================================
+   LOCAL OFFLINE CALCULATION
+   ========================================== */
+
+function localRiskCalculation(
+    rainfall,
+    water,
+    river,
+    soil,
+    humidity
+) {
+
+
+    let score = 0;
+
+
+    /*
+       Simple emergency fallback.
+       This is NOT a replacement for the trained
+       Random Forest model.
+    */
+
+
+    if (rainfall >= 20)
+        score += 20;
+
+
+    if (rainfall >= 50)
+        score += 20;
+
+
+    if (rainfall >= 80)
+        score += 20;
+
+
+    if (water >= 3)
+        score += 10;
+
+
+    if (water >= 4)
+        score += 10;
+
+
+    if (river >= 4)
+        score += 10;
+
+
+    if (river >= 5)
+        score += 10;
+
+
+    if (humidity >= 85)
+        score += 5;
+
+
+    if (soil >= 80)
+        score += 5;
+
+
+    score =
+        Math.min(
+            100,
+            score
+        );
+
+
+    let level;
+    let warning;
+
+
+    if (score < 30) {
+
+        level = "LOW";
+
+        warning =
+            "Offline mode: Continue normal monitoring.";
+
+    }
+
+    else if (score < 60) {
+
+        level = "MODERATE";
+
+        warning =
+            "Offline mode: Monitor rainfall and water conditions.";
+
+    }
+
+    else if (score < 80) {
+
+        level = "HIGH";
+
+        warning =
+            "Offline mode: Prepare emergency response.";
+
+    }
+
+    else {
+
+        level = "CRITICAL";
+
+        warning =
+            "Offline mode: Immediate emergency preparedness required.";
+
+    }
+
+
+    showRisk(
+        score,
+        level,
+        warning
+    );
+
+
+    addHistory(
+        rainfall,
+        water,
+        score,
+        level + " OFFLINE"
+    );
+
+}
+
+
+
+/* ==========================================
+   OFFLINE PREDICTION
+   ========================================== */
+
+function offlinePrediction() {
+
+
+    /*
+       If weather API itself fails,
+       use the last known values.
+    */
+
+
+    const rainfall =
+        parseFloat(
+            localStorage.getItem(
+                "lastRainfall"
+            )
+        ) || 0;
+
+
+    const water =
+        2.5;
+
+
+    const river =
+        3.0;
+
+
+    const soil =
+        parseFloat(
+            localStorage.getItem(
+                "lastSoil"
+            )
+        ) || 50;
+
+
+    const humidity =
+        parseFloat(
+            localStorage.getItem(
+                "lastHumidity"
+            )
+        ) || 60;
+
+
+    localRiskCalculation(
+        rainfall,
+        water,
+        river,
+        soil,
+        humidity
+    );
+
+}
+
+
+
+/* ==========================================
+   FORECAST DISPLAY
+   ========================================== */
+
+function displayForecast(
+    hourly
+) {
+
+
+    const container =
+        document.getElementById(
+            "forecastGrid"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const now =
+        new Date();
+
+
+    let count = 0;
+
+
+    for (
+        let i = 0;
+        i < hourly.time.length;
+        i++
+    ) {
+
+
+        const forecastTime =
+            new Date(
+                hourly.time[i]
+            );
+
+
+        if (
+            forecastTime >= now &&
+            count < 6
+        ) {
+
+
+            const box =
+                document.createElement(
+                    "div"
+                );
+
+
+            box.className =
+                "forecast-box";
+
+
+            const time =
+                forecastTime
+                .toLocaleTimeString(
+                    [],
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                );
+
+
+            const temp =
+                hourly.temperature_2m[i];
+
+
+            const rain =
+                hourly.precipitation[i];
+
+
+            const wind =
+                hourly.wind_speed_10m[i];
+
+
+            box.innerHTML = `
+
+                <strong>${time}</strong>
+
+                <span>🌡️ ${temp}°C</span>
+
+                <span>🌧️ ${rain} mm</span>
+
+                <span>💨 ${wind} km/h</span>
+
+            `;
+
+
+            container.appendChild(
+                box
+            );
+
+
+            count++;
+
+        }
+
+    }
+
+}
+
+
+
+/* ==========================================
+   HISTORY
+   ========================================== */
+
+function addHistory(
+    rainfall,
+    water,
+    score,
+    status
+) {
+
+
+    const now =
+        new Date();
+
+
+    const time =
+        now.getHours()
+            .toString()
+            .padStart(2, "0")
+        + ":"
+        +
+        now.getMinutes()
+            .toString()
+            .padStart(2, "0");
+
+
+    const table =
+        document.getElementById(
+            "historyTable"
+        );
+
+
+    if (
+        table.rows.length === 1 &&
+        table.rows[0].cells[4].innerText ===
+        "Waiting..."
+    ) {
+
+        table.deleteRow(0);
+
+    }
+
+
+    const row =
+        table.insertRow(0);
+
+
+    row.innerHTML = `
+
+        <td>${time}</td>
+
+        <td>${Number(rainfall).toFixed(1)} mm</td>
+
+        <td>${Number(water).toFixed(1)} m</td>
+
+        <td>${score}</td>
+
+        <td>${status}</td>
+
+    `;
+
+
+    if (
+        table.rows.length > 6
+    ) {
+
+        table.deleteRow(6);
+
+    }
+
+}
+
+
+
+/* ==========================================
+   LOCATION CHANGE
+   ========================================== */
+
+function changeLocation() {
+
+    getRealWeather();
+
+}
+
+
+
+/* ==========================================
+   SAVE LAST WEATHER DATA
+   ========================================== */
+
+function saveWeatherData(
+    rainfall,
+    humidity,
+    soil
+) {
+
+    localStorage.setItem(
+        "lastRainfall",
+        rainfall
+    );
+
+    localStorage.setItem(
+        "lastHumidity",
+        humidity
+    );
+
+    localStorage.setItem(
+        "lastSoil",
+        soil
+    );
+
+}
+
+
+
+/* ==========================================
+   OVERRIDE UPDATE FUNCTION
+   ========================================== */
+
+const originalGetRealWeather =
+    getRealWeather;
+
+
+
+/* ==========================================
+   START
+   ========================================== */
+
+getRealWeather();
+
+
+/*
+   Update weather every 10 minutes.
+*/
+
+setInterval(
+    getRealWeather,
+    10 * 60 * 1000
+);
+
+</script>
+
+</body>
+
+</html>
